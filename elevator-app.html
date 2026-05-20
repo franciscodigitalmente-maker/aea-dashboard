@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCORRÊNCIAS · Controle de Elevadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0e0e10;
+    --bg-2: #16161a;
+    --panel: #1c1c21;
+    --panel-2: #232329;
+    --line: #2a2a31;
+    --line-2: #3a3a44;
+    --ink: #f4f4f5;
+    --ink-2: #b4b4be;
+    --ink-3: #6f6f7a;
+    --accent: #ff6a00;
+    --accent-2: #ffb800;
+    --green: #4ade80;
+    --red: #f43f5e;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --display: 'Inter Tight', -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  body {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* ===== TOPBAR ===== */
+  .topbar {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+  }
+
+  .topbar-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-weight: 800;
+    color: #000;
+    font-size: 18px;
+    border-radius: 2px;
+    position: relative;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(0,0,0,0.25);
+    border-radius: 1px;
+  }
+
+  .brand-text { line-height: 1.1; }
+  .brand-text .name {
+    font-family: var(--mono);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .brand-text .sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .topbar-meta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+  .topbar-meta .item { display: flex; align-items: center; gap: 8px; }
+  .topbar-meta .label { color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.1em; }
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(74,222,128,0.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+    100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .tabs-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 28px;
+    display: flex;
+    gap: 0;
+  }
+  .tab {
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 16px 22px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+  }
+  .tab .badge {
+    background: var(--panel-2);
+    color: var(--ink-2);
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-size: 10px;
+    min-width: 22px;
+    text-align: center;
+  }
+  .tab.active .badge { background: var(--accent); color: #000; }
+
+  /* ===== LAYOUT ===== */
+  .main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 28px;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .page-title {
+    font-family: var(--display);
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .page-title .accent { color: var(--accent); }
+  .page-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 14px 22px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn:hover { background: var(--accent-2); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn.secondary {
+    background: var(--panel-2);
+    color: var(--ink);
+    border: 1px solid var(--line-2);
+  }
+  .btn.secondary:hover { background: var(--panel); border-color: var(--ink-3); }
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink-2);
+    border: 1px solid var(--line-2);
+  }
+  .btn.ghost:hover { color: var(--ink); border-color: var(--ink-3); }
+  .btn.danger { background: var(--red); color: #fff; }
+  .btn.danger:hover { background: #e11d48; }
+
+  /* ===== KPI ===== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--panel);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .kpi:hover::before { opacity: 1; }
+  .kpi-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .kpi-value {
+    font-family: var(--display);
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .kpi-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+  .kpi-meta .up { color: var(--green); }
+  .kpi-meta .down { color: var(--red); }
+  .kpi-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--ink-3);
+  }
+  .kpi.k-open .kpi-value { color: var(--accent); }
+  .kpi.k-progress .kpi-value { color: var(--blue); }
+  .kpi.k-done .kpi-value { color: var(--green); }
+  .kpi.k-critical .kpi-value { color: var(--red); }
+
+  /* ===== DASHBOARD GRID ===== */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .panel-title-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .panel-body { padding: 22px; }
+
+  .chart-wrap { position: relative; height: 280px; }
+  .chart-wrap.tall { height: 320px; }
+
+  .donut-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .donut-stat {
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .donut-stat:first-of-type { border-top: none; }
+  .donut-stat .left { display: flex; align-items: center; gap: 10px; }
+  .donut-stat .dot { width: 10px; height: 10px; border-radius: 2px; }
+  .donut-stat .lab {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .donut-stat .val {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ===== TABLE ===== */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 240px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 12px;
+    flex: 1;
+  }
+  .search-box svg { color: var(--ink-3); width: 16px; height: 16px; }
+
+  .filter-select {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 12px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    outline: none;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+
+  .table-wrap {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    text-align: left;
+    padding: 14px 18px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink);
+    vertical-align: middle;
+  }
+  tbody tr { transition: background 0.1s; cursor: pointer; }
+  tbody tr:hover { background: var(--panel-2); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .occ-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .occ-client { font-weight: 600; }
+  .occ-elev {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+    background: var(--bg-2);
+    padding: 3px 8px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+  .occ-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .status-pill::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .status-aberta { color: var(--accent); border-color: rgba(255,106,0,0.3); background: rgba(255,106,0,0.08); }
+  .status-andamento { color: var(--blue); border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08); }
+  .status-resolvida { color: var(--green); border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.08); }
+  .status-critica { color: var(--red); border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.08); }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 2px;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { color: var(--ink); background: var(--bg-2); }
+  .icon-btn.danger:hover { color: var(--red); }
+  .icon-btn svg { width: 16px; height: 16px; display: block; }
+
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--ink-3);
+  }
+  .empty-state .empty-icon {
+    width: 48px; height: 48px;
+    margin: 0 auto 16px;
+    color: var(--line-2);
+  }
+  .empty-state .empty-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    margin-bottom: 8px;
+  }
+
+  /* ===== MODAL ===== */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 20px 20px;
+    overflow-y: auto;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    width: 100%;
+    max-width: 640px;
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .modal-head {
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .modal-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .modal-body { padding: 26px; }
+  .modal-foot {
+    padding: 18px 26px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-row { display: flex; flex-direction: column; gap: 6px; }
+  .form-row.full { grid-column: 1 / -1; }
+  .form-row label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 12px 14px;
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus { border-color: var(--accent); }
+  .form-row textarea { min-height: 90px; resize: vertical; font-family: var(--display); }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--ink-3);
+    cursor: pointer;
+    padding: 4px;
+  }
+  .close-btn:hover { color: var(--ink); }
+  .close-btn svg { width: 22px; height: 22px; display: block; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--panel);
+    border: 1px solid var(--line-2);
+    border-left: 3px solid var(--green);
+    padding: 14px 20px;
+    border-radius: 2px;
+    z-index: 200;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    animation: toastIn 0.25s ease;
+  }
+  .toast.error { border-left-color: var(--red); }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== LOADING ===== */
+  .skeleton-wrap {
+    padding: 40px;
+    text-align: center;
+    color: var(--ink-3);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--line-2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== HIDE ===== */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.2s; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1024px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .dash-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .main { padding: 18px; }
+    .topbar-inner { padding: 12px 18px; }
+    .tabs-inner { padding: 0 18px; overflow-x: auto; }
+    .page-title { font-size: 28px; }
+    .topbar-meta { display: none; }
+    .kpi-value { font-size: 32px; }
+    table { font-size: 12px; }
+    th, td { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-mark">↕</div>
+      <div class="brand-text">
+        <div class="name">VERTILOG</div>
+        <div class="sub">Controle de Ocorrências · v1.0</div>
+      </div>
+    </div>
+    <div class="topbar-meta">
+      <div class="item">
+        <span class="live-dot"></span>
+        <span class="label">Sync</span>
+        <span id="sync-status">ATIVO</span>
+      </div>
+      <div class="item">
+        <span class="label">Hoje</span>
+        <span id="today-date">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tabs-inner">
+    <button class="tab active" data-tab="dashboard">
+      <span>Dashboard</span>
+    </button>
+    <button class="tab" data-tab="ocorrencias">
+      <span>Ocorrências</span>
+      <span class="badge" id="tab-count">0</span>
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DASHBOARD VIEW -->
+  <div class="view active" id="view-dashboard">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Painel <span class="accent">operacional</span></div>
+        <div class="page-sub">Visão geral · Métricas em tempo real</div>
+      </div>
+      <button class="btn" onclick="openModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova ocorrência
+      </button>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi k-open">
+        <div class="kpi-label">
+          <span>Abertas</span>
+          <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        </div>
+        <div class="kpi-value" id="kpi-aberta">0</div>
+        <div class="kpi-meta">aguardando atendimento</div>
+      </div>
+      <div class="kpi k-progress">
+        <div class="kpi-label">
+          <span>Em Andamento</span>
+          <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+        </div>
+        <div class="kpi-value" id="kpi-andamento">0</div>
+        <div class="kpi-meta">em execução</div>
+      </div>
+      <div class="kpi k-done">
+        <div class="kpi-label">
+          <span>Resolvidas</span>
+          <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="kpi-value" id="kpi-resolvida">0</div>
+        <div class="kpi-meta">concluídas no período</div>
+      </div>
+      <div class="kpi k-critical">
+        <div class="kpi-label">
+          <span>Críticas</span>
+          <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="kpi-value" id="kpi-critica">0</div>
+        <div class="kpi-meta">prioridade máxima</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="dash-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Volume por mês</div>
+            <div class="panel-title-sub">Últimos 6 meses · todas as ocorrências</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap tall"><canvas id="chartMonth"></canvas></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Distribuição por status</div>
+            <div class="panel-title-sub">Total atual</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap"><canvas id="chartStatus"></canvas></div>
+          <div id="donut-legend"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Top clientes</div>
+            <div class="panel-title-sub">Maior número de ocorrências</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap"><canvas id="chartClients"></canvas></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Tipos de problema</div>
+            <div class="panel-title-sub">Categorias mais reportadas</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-wrap"><canvas id="chartTypes"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OCCURRENCES VIEW -->
+  <div class="view" id="view-ocorrencias">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Ocorrências <span class="accent">registradas</span></div>
+        <div class="page-sub">Histórico completo · Dados compartilhados</div>
+      </div>
+      <button class="btn" onclick="openModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova ocorrência
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="search" placeholder="Buscar por cliente, elevador, problema...">
+      </div>
+      <select class="filter-select" id="filter-status">
+        <option value="">Todos os status</option>
+        <option value="aberta">Aberta</option>
+        <option value="andamento">Em andamento</option>
+        <option value="resolvida">Resolvida</option>
+        <option value="critica">Crítica</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Elevador</th>
+            <th>Problema</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr><td colspan="7" class="skeleton-wrap"><span class="spinner"></span>Carregando dados compartilhados...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modal-title">Nova ocorrência</div>
+        <div class="modal-sub" id="modal-sub">Preencha os dados do chamado</div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="form" onsubmit="return false;">
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Cliente *</label>
+            <input type="text" id="f-cliente" placeholder="Ex: Edifício Aurora" required>
+          </div>
+          <div class="form-row">
+            <label>Elevador *</label>
+            <input type="text" id="f-elevador" placeholder="Ex: ELV-04 / Social" required>
+          </div>
+          <div class="form-row full">
+            <label>Problema relatado *</label>
+            <textarea id="f-problema" placeholder="Descreva a ocorrência..." required></textarea>
+          </div>
+          <div class="form-row">
+            <label>Status *</label>
+            <select id="f-status" required>
+              <option value="aberta">Aberta</option>
+              <option value="andamento">Em andamento</option>
+              <option value="resolvida">Resolvida</option>
+              <option value="critica">Crítica</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Data</label>
+            <input type="date" id="f-data">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn" onclick="saveOccurrence()" id="save-btn">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============== STATE ==============
+  let occurrences = [];
+  let editingId = null;
+  let charts = {};
+
+  const STORAGE_KEY = 'vertilog:occurrences';
+
+  // ============== UTILS ==============
+  const fmtDate = (iso) => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
+  };
+
+  const fmtDateShort = (iso) => {
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  };
+
+  const todayISO = () => new Date().toISOString().split('T')[0];
+
+  const genId = () => {
+    const yr = new Date().getFullYear().toString().slice(-2);
+    const num = (occurrences.length + 1).toString().padStart(4, '0');
+    return `OC-${yr}${num}`;
+  };
+
+  const statusLabel = {
+    aberta: 'Aberta',
+    andamento: 'Em Andamento',
+    resolvida: 'Resolvida',
+    critica: 'Crítica'
+  };
+
+  const statusColor = {
+    aberta: '#ff6a00',
+    andamento: '#60a5fa',
+    resolvida: '#4ade80',
+    critica: '#f43f5e'
+  };
+
+  function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = 'toast' + (type === 'error' ? ' error' : '');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .25s'; }, 2200);
+    setTimeout(() => t.remove(), 2600);
+  }
+
+  // ============== STORAGE (shared) ==============
+  async function loadData() {
+    try {
+      if (window.storage) {
+        const result = await window.storage.get(STORAGE_KEY, true);
+        if (result && result.value) {
+          occurrences = JSON.parse(result.value);
+          return;
+        }
+      }
+    } catch (e) {
+      // key doesn't exist yet or storage unavailable
+    }
+    // Seed with sample data
+    occurrences = seedData();
+    await saveData();
+  }
+
+  async function saveData() {
+    try {
+      if (window.storage) {
+        await window.storage.set(STORAGE_KEY, JSON.stringify(occurrences), true);
+        document.getElementById('sync-status').textContent = 'ATIVO';
+      } else {
+        document.getElementById('sync-status').textContent = 'LOCAL';
+      }
+    } catch (e) {
+      document.getElementById('sync-status').textContent = 'OFFLINE';
+      console.error('Save failed:', e);
+    }
+  }
+
+  function seedData() {
+    const today = new Date();
+    const dayOffset = (n) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - n);
+      return d.toISOString().split('T')[0];
+    };
+    return [
+      { id: 'OC-260001', cliente: 'Edifício Aurora', elevador: 'ELV-01 / Social', problema: 'Porta não fecha completamente no 5º andar', status: 'andamento', data: dayOffset(1) },
+      { id: 'OC-260002', cliente: 'Shopping Verão', elevador: 'ELV-A3 / Panorâmico', problema: 'Ruído metálico durante a subida', status: 'aberta', data: dayOffset(0) },
+      { id: 'OC-260003', cliente: 'Condomínio Solar', elevador: 'ELV-02 / Serviço', problema: 'Cabine parou entre andares com passageiro', status: 'critica', data: dayOffset(0) },
+      { id: 'OC-260004', cliente: 'Hospital Central', elevador: 'ELV-05 / Emergência', problema: 'Botão do 3º andar sem resposta', status: 'resolvida', data: dayOffset(3) },
+      { id: 'OC-260005', cliente: 'Edifício Aurora', elevador: 'ELV-02 / Serviço', problema: 'Iluminação interna piscando', status: 'resolvida', data: dayOffset(5) },
+      { id: 'OC-260006', cliente: 'Torre Empresarial', elevador: 'ELV-B1', problema: 'Manutenção preventiva mensal', status: 'andamento', data: dayOffset(2) },
+      { id: 'OC-260007', cliente: 'Condomínio Solar', elevador: 'ELV-01 / Social', problema: 'Velocidade reduzida nos últimos dias', status: 'aberta', data: dayOffset(1) },
+      { id: 'OC-260008', cliente: 'Shopping Verão', elevador: 'ELV-A1', problema: 'Display de andar sem funcionamento', status: 'resolvida', data: dayOffset(8) },
+      { id: 'OC-260009', cliente: 'Hospital Central', elevador: 'ELV-03', problema: 'Vibração anormal acima de 5 pessoas', status: 'critica', data: dayOffset(2) },
+      { id: 'OC-260010', cliente: 'Edifício Aurora', elevador: 'ELV-01 / Social', problema: 'Atualização de software de controle', status: 'resolvida', data: dayOffset(12) },
+    ];
+  }
+
+  // ============== RENDER ==============
+  function render() {
+    renderKPIs();
+    renderTable();
+    renderCharts();
+    document.getElementById('tab-count').textContent = occurrences.length;
+  }
+
+  function renderKPIs() {
+    const count = (s) => occurrences.filter(o => o.status === s).length;
+    document.getElementById('kpi-aberta').textContent = count('aberta');
+    document.getElementById('kpi-andamento').textContent = count('andamento');
+    document.getElementById('kpi-resolvida').textContent = count('resolvida');
+    document.getElementById('kpi-critica').textContent = count('critica');
+  }
+
+  function renderTable() {
+    const search = document.getElementById('search').value.toLowerCase();
+    const filterStatus = document.getElementById('filter-status').value;
+    let list = [...occurrences].sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+
+    if (search) {
+      list = list.filter(o =>
+        o.cliente.toLowerCase().includes(search) ||
+        o.elevador.toLowerCase().includes(search) ||
+        o.problema.toLowerCase().includes(search) ||
+        o.id.toLowerCase().includes(search)
+      );
+    }
+    if (filterStatus) list = list.filter(o => o.status === filterStatus);
+
+    const tb = document.getElementById('table-body');
+    if (list.length === 0) {
+      tb.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+        <div class="empty-title">Nenhuma ocorrência encontrada</div>
+        <div>Ajuste os filtros ou registre uma nova ocorrência</div>
+      </div></td></tr>`;
+      return;
+    }
+
+    tb.innerHTML = list.map(o => `
+      <tr onclick="editOccurrence('${o.id}')">
+        <td><span class="occ-id">${o.id}</span></td>
+        <td><div class="occ-client">${escapeHtml(o.cliente)}</div></td>
+        <td><span class="occ-elev">${escapeHtml(o.elevador)}</span></td>
+        <td>${escapeHtml(o.problema).slice(0, 80)}${o.problema.length > 80 ? '…' : ''}</td>
+        <td><span class="status-pill status-${o.status}">${statusLabel[o.status]}</span></td>
+        <td><span class="occ-date">${fmtDate(o.data)}</span></td>
+        <td onclick="event.stopPropagation()">
+          <button class="icon-btn danger" onclick="deleteOccurrence('${o.id}')" title="Excluir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ============== CHARTS ==============
+  Chart.defaults.font.family = "'JetBrains Mono', monospace";
+  Chart.defaults.font.size = 10;
+  Chart.defaults.color = '#b4b4be';
+  Chart.defaults.borderColor = '#2a2a31';
+
+  function renderCharts() {
+    Object.values(charts).forEach(c => c && c.destroy());
+
+    // Chart 1: Volume per month
+    const monthData = getMonthData();
+    charts.month = new Chart(document.getElementById('chartMonth'), {
+      type: 'bar',
+      data: {
+        labels: monthData.labels,
+        datasets: [{
+          label: 'Ocorrências',
+          data: monthData.values,
+          backgroundColor: '#ff6a00',
+          borderRadius: 2,
+          maxBarThickness: 48
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#6f6f7a', font: { size: 10, weight: 600 } } },
+          y: { beginAtZero: true, grid: { color: '#2a2a31' }, ticks: { color: '#6f6f7a', stepSize: 1 } }
+        }
+      }
+    });
+
+    // Chart 2: Status donut
+    const statusCounts = ['aberta', 'andamento', 'resolvida', 'critica'].map(s =>
+      occurrences.filter(o => o.status === s).length
+    );
+    charts.status = new Chart(document.getElementById('chartStatus'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Abertas', 'Em Andamento', 'Resolvidas', 'Críticas'],
+        datasets: [{
+          data: statusCounts,
+          backgroundColor: ['#ff6a00', '#60a5fa', '#4ade80', '#f43f5e'],
+          borderColor: '#1c1c21',
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 14,
+              boxWidth: 10,
+              boxHeight: 10,
+              color: '#b4b4be',
+              font: { size: 10, weight: 600 }
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 3: Top clients
+    const clientCounts = {};
+    occurrences.forEach(o => { clientCounts[o.cliente] = (clientCounts[o.cliente] || 0) + 1; });
+    const topClients = Object.entries(clientCounts).sort((a,b) => b[1]-a[1]).slice(0, 6);
+    charts.clients = new Chart(document.getElementById('chartClients'), {
+      type: 'bar',
+      data: {
+        labels: topClients.map(c => c[0]),
+        datasets: [{
+          data: topClients.map(c => c[1]),
+          backgroundColor: '#ffb800',
+          borderRadius: 2,
+          maxBarThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, grid: { color: '#2a2a31' }, ticks: { color: '#6f6f7a', stepSize: 1 } },
+          y: { grid: { display: false }, ticks: { color: '#b4b4be', font: { weight: 500 } } }
+        }
+      }
+    });
+
+    // Chart 4: Problem types (keywords from problema)
+    const typeCounts = categorizeProblems();
+    charts.types = new Chart(document.getElementById('chartTypes'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(typeCounts),
+        datasets: [{
+          data: Object.values(typeCounts),
+          backgroundColor: ['#a78bfa', '#60a5fa', '#4ade80', '#ffb800', '#ff6a00', '#f43f5e'].slice(0, Object.keys(typeCounts).length),
+          borderRadius: 2,
+          maxBarThickness: 40
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#6f6f7a', font: { size: 9 } } },
+          y: { beginAtZero: true, grid: { color: '#2a2a31' }, ticks: { color: '#6f6f7a', stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  function getMonthData() {
+    const months = [];
+    const counts = [];
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = monthNames[d.getMonth()];
+      months.push(label);
+      const c = occurrences.filter(o => (o.data || '').startsWith(key)).length;
+      counts.push(c);
+    }
+    return { labels: months, values: counts };
+  }
+
+  function categorizeProblems() {
+    const cats = {
+      'Porta': 0, 'Ruído/Vibração': 0, 'Parada': 0,
+      'Botões/Display': 0, 'Manutenção': 0, 'Outros': 0
+    };
+    occurrences.forEach(o => {
+      const p = o.problema.toLowerCase();
+      if (/porta|fecha|abre/.test(p)) cats['Porta']++;
+      else if (/ruíd|barulh|vibra|som|metálic/.test(p)) cats['Ruído/Vibração']++;
+      else if (/parou|parad|prendid|preso/.test(p)) cats['Parada']++;
+      else if (/botão|botao|display|painel|ilumin/.test(p)) cats['Botões/Display']++;
+      else if (/manuten|prevent|software|atualiza/.test(p)) cats['Manutenção']++;
+      else cats['Outros']++;
+    });
+    // Remove zero categories
+    return Object.fromEntries(Object.entries(cats).filter(([k, v]) => v > 0));
+  }
+
+  // ============== CRUD ==============
+  function openModal(occ = null) {
+    editingId = occ ? occ.id : null;
+    document.getElementById('modal-title').textContent = occ ? 'Editar ocorrência' : 'Nova ocorrência';
+    document.getElementById('modal-sub').textContent = occ ? occ.id : 'Preencha os dados do chamado';
+    document.getElementById('f-cliente').value = occ?.cliente || '';
+    document.getElementById('f-elevador').value = occ?.elevador || '';
+    document.getElementById('f-problema').value = occ?.problema || '';
+    document.getElementById('f-status').value = occ?.status || 'aberta';
+    document.getElementById('f-data').value = occ?.data || todayISO();
+    document.getElementById('modal').classList.add('open');
+    setTimeout(() => document.getElementById('f-cliente').focus(), 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    editingId = null;
+  }
+
+  function editOccurrence(id) {
+    const o = occurrences.find(x => x.id === id);
+    if (o) openModal(o);
+  }
+
+  async function saveOccurrence() {
+    const cliente = document.getElementById('f-cliente').value.trim();
+    const elevador = document.getElementById('f-elevador').value.trim();
+    const problema = document.getElementById('f-problema').value.trim();
+    const status = document.getElementById('f-status').value;
+    const data = document.getElementById('f-data').value || todayISO();
+
+    if (!cliente || !elevador || !problema) {
+      showToast('Preencha os campos obrigatórios', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Salvando...';
+
+    if (editingId) {
+      const idx = occurrences.findIndex(o => o.id === editingId);
+      if (idx >= 0) {
+        occurrences[idx] = { ...occurrences[idx], cliente, elevador, problema, status, data };
+      }
+    } else {
+      occurrences.push({ id: genId(), cliente, elevador, problema, status, data });
+    }
+
+    await saveData();
+    render();
+    closeModal();
+    btn.disabled = false;
+    btn.innerHTML = 'Salvar';
+    showToast(editingId ? 'Ocorrência atualizada' : 'Ocorrência registrada');
+  }
+
+  async function deleteOccurrence(id) {
+    if (!confirm('Excluir esta ocorrência? Esta ação não pode ser desfeita.')) return;
+    occurrences = occurrences.filter(o => o.id !== id);
+    await saveData();
+    render();
+    showToast('Ocorrência excluída');
+  }
+
+  // ============== TABS ==============
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('view-' + t.dataset.tab).classList.add('active');
+      if (t.dataset.tab === 'dashboard') setTimeout(renderCharts, 50);
+    });
+  });
+
+  // ============== FILTERS ==============
+  document.getElementById('search').addEventListener('input', renderTable);
+  document.getElementById('filter-status').addEventListener('change', renderTable);
+
+  // ============== KEYBOARD ==============
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openModal(); }
+  });
+
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') closeModal();
+  });
+
+  // ============== INIT ==============
+  function setTodayDate() {
+    const d = new Date();
+    document.getElementById('today-date').textContent = d.toLocaleDateString('pt-BR', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    }).replace('.', '').toUpperCase();
+  }
+
+  async function init() {
+    setTodayDate();
+    await loadData();
+    render();
+  }
+
+  init();
+</script>
+
+</body>
+</html>
