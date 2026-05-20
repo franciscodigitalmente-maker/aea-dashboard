@@ -418,47 +418,7 @@ td[data-editado]:hover::after{content:attr(data-editado);position:absolute;botto
   <button class="nav-tab" id="ntab-despesas" onclick="showSection('despesas')">Despesas <span class="nav-badge" id="badgeDesp" style="display:none">0</span></button>
   <button class="nav-tab" id="ntab-caixa" onclick="showSection('caixa')">Caixa</button>
   <button class="nav-tab" id="ntab-contratos" onclick="showSection('contratos')">Contratos</button>
-  <button class="nav-tab" id="ntab-rh" onclick="showSection('rh')">RH / Folha</button>
   <button class="nav-tab" id="ntab-clientes" onclick="showSection('clientes')">Clientes</button>
-</div>
-
-<!-- TELA DE LOGIN -->
-<div id="loginOverlay" class="login-overlay">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="login-logo-badge">A&A</div>
-      <div>
-        <div class="login-logo-title">A&A Elevadores</div>
-        <div class="login-logo-sub">Gestão Financeira — Acesso seguro</div>
-      </div>
-    </div>
-    <div id="loginUrlBox">
-      <label class="login-label">URL do servidor (Worker)</label>
-      <input class="login-worker-url" id="loginWorkerUrl" placeholder="https://aea-api.seu-usuario.workers.dev" />
-      <span class="login-worker-label">Cole aqui a URL do Worker que você criou na Cloudflare</span>
-    </div>
-    <label class="login-label">Usuário</label>
-    <input class="login-input" id="loginUsuario" placeholder="seu usuário" autocomplete="username" />
-    <label class="login-label">Senha</label>
-    <input class="login-input" id="loginSenha" type="password" placeholder="••••••••" autocomplete="current-password"
-      onkeydown="if(event.key==='Enter') fazerLogin()" />
-    <button class="login-btn" onclick="fazerLogin()" id="loginBtn">Entrar</button>
-    <div class="login-err" id="loginErr"></div>
-  </div>
-</div>
-
-<!-- BARRA DE STATUS NUVEM -->
-<div class="cloud-bar" id="cloudBar" style="display:none">
-  <div style="display:flex;align-items:center">
-    <span class="cloud-dot cloud-dot-ok" id="cloudDot"></span>
-    <span id="cloudStatus">Conectado à nuvem</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <span id="cloudUltimoSave"></span>
-    <span id="viewerBadge" class="viewer-lock">modo leitura</span>
-    <span id="cloudUser" style="color:var(--gray-dark)"></span>
-    <button onclick="fazerLogout()" style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 10px;background:transparent;color:var(--gray-mid);border:1px solid var(--gray-light);cursor:pointer">Sair</button>
-  </div>
 </div>
 
 <!-- MODAL PRIMEIRO ACESSO -->
@@ -489,7 +449,7 @@ td[data-editado]:hover::after{content:attr(data-editado);position:absolute;botto
   <button id="mnav-dashboard" onclick="showSection('dashboard')" class="active"><i class="ti ti-chart-bar" aria-hidden="true"></i>Receitas</button>
   <button id="mnav-despesas" onclick="showSection('despesas')"><i class="ti ti-receipt" aria-hidden="true"></i>Despesas</button>
   <button id="mnav-caixa" onclick="showSection('caixa')"><i class="ti ti-wallet" aria-hidden="true"></i>Caixa</button>
-  <button id="mnav-rh" onclick="showSection('rh')"><i class="ti ti-users" aria-hidden="true"></i>RH</button>
+  <button id="mnav-contratos" onclick="showSection('contratos')"><i class="ti ti-file-text" aria-hidden="true"></i>Contratos</button>
   <button id="mnav-clientes" onclick="showSection('clientes')"><i class="ti ti-building" aria-hidden="true"></i>Clientes</button>
 </nav>
 
@@ -1486,149 +1446,6 @@ td[data-editado]:hover::after{content:attr(data-editado);position:absolute;botto
 
 </div><!-- /sec-contratos -->
 
-<!-- ── SEÇÃO RH / FOLHA DE PAGAMENTO ──────────────────────────────────────── -->
-<div id="sec-rh" class="section">
-
-  <!-- Sub-navegação -->
-  <div style="display:flex;gap:0;margin-bottom:1.25rem;border-bottom:2px solid var(--gray-light)">
-    <button class="cli-subtab active" id="rhtab-funcionarios" onclick="showRhTab('funcionarios')">Funcionários</button>
-    <button class="cli-subtab" id="rhtab-folha" onclick="showRhTab('folha')">Folha do mês</button>
-    <button class="cli-subtab" id="rhtab-holerite" onclick="showRhTab('holerite')">Holerite</button>
-  </div>
-
-  <!-- ── FUNCIONÁRIOS ── -->
-  <div id="rhsec-funcionarios">
-    <div class="rh-kpis" id="rhKpis"></div>
-    <div class="table-card" style="margin-bottom:1.5rem">
-      <div class="table-head-bar">
-        <div class="table-head-title">Funcionários cadastrados</div>
-        <div class="filter-row">
-          <input class="search-input" id="searchFunc" placeholder="🔍 Buscar..." oninput="renderFuncionarios()" style="min-width:140px"/>
-          <select class="fsel" id="filterFuncStatus" onchange="renderFuncionarios()">
-            <option value="">Todos</option>
-            <option value="Ativo">Ativo</option>
-            <option value="Inativo">Inativo</option>
-            <option value="Férias">Férias</option>
-            <option value="Afastado">Afastado</option>
-          </select>
-        </div>
-      </div>
-      <div id="funcionariosLista" style="padding:.75rem 1rem"></div>
-    </div>
-    <div class="form-card">
-      <div class="form-head" style="display:flex;align-items:center;justify-content:space-between">
-        <div class="form-head-title" id="funcFormTitle">Cadastrar funcionário</div>
-        <button id="btnCancelarFunc" onclick="cancelarEdicaoFunc()" style="display:none;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 14px;background:transparent;color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.3);cursor:pointer">Cancelar</button>
-      </div>
-      <div class="form-body">
-        <input type="hidden" id="funcEditId"/>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">Nome completo *</label><input class="form-input" id="funcNome" placeholder="Ex: João da Silva"/></div>
-          <div class="form-group"><label class="form-label">CPF</label><input class="form-input" id="funcCpf" placeholder="000.000.000-00"/></div>
-          <div class="form-group"><label class="form-label">Cargo / Função *</label><input class="form-input" id="funcCargo" list="listaCargos" placeholder="Ex: Técnico em Elevadores" autocomplete="off"/>
-            <datalist id="listaCargos"><option value="Técnico em Elevadores"><option value="Auxiliar Técnico"><option value="Supervisor de Manutenção"><option value="Administrativo"><option value="Motorista"></datalist></div>
-          <div class="form-group"><label class="form-label">Salário base (R$) *</label><input class="form-input" id="funcSalario" type="number" min="0" step="0.01" placeholder="0,00"/></div>
-          <div class="form-group"><label class="form-label">Data de admissão *</label><input class="form-input" id="funcAdmissao" type="date"/></div>
-          <div class="form-group"><label class="form-label">Status</label>
-            <select class="form-input" id="funcStatus"><option value="Ativo">Ativo</option><option value="Férias">Férias</option><option value="Afastado">Afastado</option><option value="Inativo">Inativo</option></select></div>
-          <div class="form-group"><label class="form-label">Regime</label>
-            <select class="form-input" id="funcRegime"><option value="CLT">CLT</option><option value="PJ">PJ</option><option value="MEI">MEI</option><option value="Autônomo">Autônomo</option></select></div>
-          <div class="form-group"><label class="form-label">Departamento</label><input class="form-input" id="funcDepto" placeholder="Ex: Manutenção, Administrativo"/></div>
-          <div class="form-group"><label class="form-label">E-mail</label><input class="form-input" id="funcEmail" type="email" placeholder="email@empresa.com"/></div>
-          <div class="form-group"><label class="form-label">Telefone</label><input class="form-input" id="funcTel" placeholder="(00) 00000-0000"/></div>
-          <div class="form-group" style="grid-column:1/-1"><label class="form-label">Observações</label><input class="form-input" id="funcObs" placeholder="Informações adicionais..."/></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-primary" id="btnSalvarFunc" onclick="salvarFuncionario()" style="background:var(--blue)">+ Cadastrar funcionário</button>
-          <button class="btn-secondary" onclick="limparFormFunc()">Limpar</button>
-          <div id="funcMsg" style="margin-left:8px"></div>
-        </div>
-      </div>
-    </div>
-  </div><!-- /rhsec-funcionarios -->
-
-  <!-- ── FOLHA DO MÊS ── -->
-  <div id="rhsec-folha" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem">
-      <div style="display:flex;align-items:center;gap:10px">
-        <select class="fsel" id="folhaMes" style="background:var(--gray-pale);color:var(--ink);border-color:var(--gray-light)" onchange="renderFolha()">
-          <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-          <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
-          <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-          <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-        </select>
-        <select class="fsel" id="folhaAno" style="background:var(--gray-pale);color:var(--ink);border-color:var(--gray-light)" onchange="renderFolha()"></select>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="gerarFolhaComoDesp()" style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 16px;background:var(--blue);color:#fff;border:none;cursor:pointer">💾 Lançar no caixa</button>
-        <button onclick="exportarCSV('folha')" style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 16px;background:transparent;color:var(--gray-dark);border:1px solid var(--gray-light);cursor:pointer">⬇ CSV</button>
-      </div>
-    </div>
-    <div id="folhaKpis" class="rh-kpis"></div>
-    <div class="table-card">
-      <div style="overflow-x:auto"><table class="data-table" id="folhaTable">
-        <thead><tr>
-          <th style="width:22%">Funcionário</th>
-          <th style="width:12%">Cargo</th>
-          <th style="width:10%">Salário base</th>
-          <th style="width:8%">H. Extra</th>
-          <th style="width:8%">Adiant.</th>
-          <th style="width:8%">Outros</th>
-          <th style="width:9%">Proventos</th>
-          <th style="width:9%">Descontos</th>
-          <th style="width:9%">Líquido</th>
-          <th style="width:5%"></th>
-        </tr></thead>
-        <tbody id="folhaBody"></tbody>
-      </table></div>
-    </div>
-    <!-- Verbas extras por funcionário -->
-    <div class="form-card" style="margin-top:1.5rem">
-      <div class="form-head"><div class="form-head-title">Lançar verbas extras do mês</div></div>
-      <div class="form-body">
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">Funcionário *</label>
-            <select class="form-input" id="verbaFunc"><option value="">Selecione</option></select></div>
-          <div class="form-group"><label class="form-label">Tipo de verba *</label>
-            <select class="form-input" id="verbaTipo">
-              <option value="horaExtra">Hora extra</option>
-              <option value="adiantamento">Adiantamento</option>
-              <option value="bonus">Bônus / Gratificação</option>
-              <option value="valeTransporte">Vale transporte</option>
-              <option value="valeAlimentacao">Vale alimentação</option>
-              <option value="falta">Desconto — falta</option>
-              <option value="desconto">Desconto — outros</option>
-              <option value="outros">Outros provento</option>
-            </select></div>
-          <div class="form-group"><label class="form-label">Valor (R$) *</label><input class="form-input" id="verbaValor" type="number" min="0" step="0.01" placeholder="0,00"/></div>
-          <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="verbaDesc" placeholder="Ex: 8h extras semana 2"/></div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-primary" onclick="salvarVerba()" style="background:#2a6b2a">+ Adicionar verba</button>
-          <div id="verbaMsg" style="margin-left:8px"></div>
-        </div>
-      </div>
-    </div>
-  </div><!-- /rhsec-folha -->
-
-  <!-- ── HOLERITE ── -->
-  <div id="rhsec-holerite" style="display:none">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:1.25rem">
-      <select class="fsel" id="holFunc" style="background:var(--gray-pale);color:var(--ink);border-color:var(--gray-light)" onchange="renderHolerite()"><option value="">Selecione o funcionário</option></select>
-      <select class="fsel" id="holMes" style="background:var(--gray-pale);color:var(--ink);border-color:var(--gray-light)" onchange="renderHolerite()">
-        <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-        <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
-        <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-        <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-      </select>
-      <select class="fsel" id="holAno" style="background:var(--gray-pale);color:var(--ink);border-color:var(--gray-light)" onchange="renderHolerite()"></select>
-      <button onclick="window.print()" style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;background:var(--ink);color:rgba(255,255,255,.7);border:none;cursor:pointer">🖨 Imprimir holerite</button>
-    </div>
-    <div id="holBox"></div>
-  </div><!-- /rhsec-holerite -->
-
-</div><!-- /sec-rh -->
-
 </div><!-- /body -->
 
 <div class="footer">
@@ -1713,7 +1530,6 @@ function salvarClientesStorage(){
     localStorage.setItem(CLIENTES_KEY, JSON.stringify(clientes));
     showToast();
   }catch(e){}
-  if(AUTH_USER) salvarNuvem('aea_clientes_v1', clientes);
 }
 
 function showToast(){
@@ -2246,10 +2062,6 @@ function confirmarSim(){
   } else if(tipo==='contrato'){
     contratos=contratos.filter(c=>c.id!==id);
     salvarContratosStorage(); renderContratos(); atualizarNotificacoes();
-  } else if(tipo==='func'){
-    funcionarios=funcionarios.filter(f=>f.id!==id);
-    verbas=verbas.filter(v=>v.funcId!==id);
-    salvarFuncionariosStorage(); salvarVerbaStorage(); renderFuncionarios();
   }
 }
 // close on overlay click
@@ -2455,7 +2267,6 @@ function showSection(s){
   if(s==='despesas'){renderKpisDespesas();renderTabelaDespesas();atualizarBadges();}
   if(s==='caixa'){renderCaixa();}
   if(s==='contratos'){renderContratos();popularSelectContrato();}
-  if(s==='rh'){popularAnoFolha();popularAnoHol();showRhTab('funcionarios');}
 }
 
 function showCliTab(t){
@@ -2663,7 +2474,6 @@ function carregarAdministradoras(){
 
 function salvarAdmStorage(){
   try{ localStorage.setItem(ADM_KEY, JSON.stringify(administradoras)); showToast(); }catch(e){}
-  if(AUTH_USER) salvarNuvem('aea_administradoras_v1', administradoras);
 }
 
 let administradoras = carregarAdministradoras();
@@ -2688,7 +2498,6 @@ function carregarContratos(){
 }
 function salvarContratosStorage(){
   try{ localStorage.setItem(CONTRATOS_KEY, JSON.stringify(contratos)); showToast(); }catch(e){}
-  if(AUTH_USER) salvarNuvem('aea_contratos_v1', contratos);
 }
 let contratos = carregarContratos();
 
@@ -2826,9 +2635,7 @@ function exportarDados(){
     despesas: despesas,
     clientes: clientes,
     administradoras: administradoras,
-    contratos: contratos,
-    funcionarios: funcionarios,
-    verbas: verbas
+    contratos: contratos
   };
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], {type:'application/json'});
@@ -2860,12 +2667,8 @@ function importarDados(event){
       despesas        = payload.despesas || [];
       clientes        = payload.clientes;
       administradoras = payload.administradoras || [];
-      contratos       = payload.contratos    || [];
-      funcionarios    = payload.funcionarios  || [];
-      verbas          = payload.verbas         || [];
+      contratos       = payload.contratos || [];
       localStorage.setItem(CONTRATOS_KEY, JSON.stringify(contratos));
-      localStorage.setItem(FUNC_KEY, JSON.stringify(funcionarios));
-      localStorage.setItem(VERBAS_KEY, JSON.stringify(verbas));
       localStorage.setItem(STORAGE_KEY,   JSON.stringify(lancamentos));
       localStorage.setItem(DESPESAS_KEY,  JSON.stringify(despesas));
       localStorage.setItem(CLIENTES_KEY,  JSON.stringify(clientes));
@@ -2916,7 +2719,6 @@ function carregarDespesas(){
 function salvarDespesasStorage(){
   try{ localStorage.setItem(DESPESAS_KEY, JSON.stringify(despesas)); showToast(); }catch(e){}
   popularFiltroCategoria();
-  if(AUTH_USER) salvarNuvem('aea_despesas_v1', despesas);
 }
 
 function popularFiltroCategoria(){
@@ -3939,164 +3741,6 @@ document.addEventListener('click', e=>{
   if(ov && e.target === ov) fecharDocModal();
 });
 
-
-// ══ NUVEM / CLOUDFLARE ═══════════════════════════════════════════════════════
-let WORKER_URL  = localStorage.getItem('aea_worker_url') || '';
-let AUTH_USER   = '';
-let AUTH_SENHA  = '';
-let USER_PERFIL = '';
-let USER_NOME   = '';
-let _syncTimer  = null;
-
-async function fazerLogin(){
-  const urlInput = document.getElementById('loginWorkerUrl').value.trim();
-  const usuario  = document.getElementById('loginUsuario').value.trim();
-  const senha    = document.getElementById('loginSenha').value;
-  const errEl    = document.getElementById('loginErr');
-  const btn      = document.getElementById('loginBtn');
-
-  if(urlInput) WORKER_URL = urlInput.replace(/\/+$/, '');
-  if(!WORKER_URL){ errEl.textContent='Cole a URL do Worker acima.'; return; }
-  if(!usuario||!senha){ errEl.textContent='Preencha usuário e senha.'; return; }
-
-  btn.textContent='Conectando...'; btn.disabled=true; errEl.textContent='';
-  try{
-    const res = await fetch(WORKER_URL+'/status',{
-      headers:{'X-Usuario':usuario,'X-Senha':senha}
-    });
-    const data = await res.json();
-    if(!data.ok){ errEl.textContent='Usuário ou senha incorretos.'; btn.textContent='Entrar'; btn.disabled=false; return; }
-
-    // Sucesso
-    WORKER_URL  = WORKER_URL;
-    AUTH_USER   = usuario;
-    AUTH_SENHA  = senha;
-    USER_PERFIL = data.perfil;
-    USER_NOME   = data.nome;
-
-    localStorage.setItem('aea_worker_url', WORKER_URL);
-    localStorage.setItem('aea_auth_user',  AUTH_USER);
-    localStorage.setItem('aea_auth_senha', AUTH_SENHA);
-
-    document.getElementById('loginOverlay').style.display='none';
-    document.getElementById('cloudBar').style.display='flex';
-    document.getElementById('cloudUser').textContent=USER_NOME;
-    if(USER_PERFIL==='viewer') document.getElementById('viewerBadge').style.display='inline-block';
-
-    if(data.ultimoSave) atualizarUltimoSave(data.ultimoSave);
-    await carregarDadosNuvem();
-    aplicarModoViewer();
-    iniciarAutosync();
-
-  }catch(e){
-    errEl.textContent='Não foi possível conectar. Verifique a URL do Worker.';
-    btn.textContent='Entrar'; btn.disabled=false;
-  }
-}
-
-function fazerLogout(){
-  if(!confirm('Sair do dashboard?')) return;
-  localStorage.removeItem('aea_auth_user');
-  localStorage.removeItem('aea_auth_senha');
-  AUTH_USER=''; AUTH_SENHA=''; USER_PERFIL=''; USER_NOME='';
-  clearInterval(_syncTimer);
-  document.getElementById('cloudBar').style.display='none';
-  document.getElementById('loginOverlay').style.display='flex';
-  document.getElementById('loginSenha').value='';
-  document.getElementById('loginErr').textContent='';
-}
-
-async function carregarDadosNuvem(){
-  setCloudStatus('sync','Carregando dados...');
-  try{
-    const res  = await fetch(WORKER_URL+'/dados',{headers:{'X-Usuario':AUTH_USER,'X-Senha':AUTH_SENHA}});
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.erro);
-
-    const d = data.dados;
-    if(d['aea_lancamentos_v1'])    lancamentos     = d['aea_lancamentos_v1'];
-    if(d['aea_clientes_v1'])       clientes        = d['aea_clientes_v1'];
-    if(d['aea_administradoras_v1'])administradoras = d['aea_administradoras_v1'];
-    if(d['aea_despesas_v1'])       despesas        = d['aea_despesas_v1'];
-    if(d['aea_contratos_v1'])      contratos       = d['aea_contratos_v1'];
-    if(d['aea_funcionarios_v1'])   funcionarios    = d['aea_funcionarios_v1'];
-    if(d['aea_verbas_v1'])         verbas          = d['aea_verbas_v1'];
-
-    // Re-renderiza tudo
-    setPeriod(periodoAtivo);
-    popularSelectCliente();
-    popularSelectContrato();
-    popularFiltroCategoria();
-    popularAnoFolha();
-    popularAnoHol();
-    atualizarBadges();
-    atualizarNotificacoes();
-
-    setCloudStatus('ok','Dados sincronizados');
-  }catch(e){
-    setCloudStatus('err','Erro ao carregar: '+e.message);
-  }
-}
-
-async function salvarNuvem(chave, valor){
-  if(USER_PERFIL!=='editor') return; // viewer não salva
-  setCloudStatus('sync','Salvando...');
-  try{
-    const res = await fetch(WORKER_URL+'/salvar-chave',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Usuario':AUTH_USER,'X-Senha':AUTH_SENHA},
-      body: JSON.stringify({chave, valor})
-    });
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.erro);
-    setCloudStatus('ok','Salvo na nuvem · '+new Date().toLocaleTimeString('pt-BR'));
-  }catch(e){
-    setCloudStatus('err','Erro ao salvar: '+e.message);
-  }
-}
-
-function setCloudStatus(tipo, msg){
-  const dot = document.getElementById('cloudDot');
-  const txt = document.getElementById('cloudStatus');
-  if(!dot||!txt) return;
-  dot.className='cloud-dot cloud-dot-'+(tipo==='ok'?'ok':tipo==='sync'?'sync':'err');
-  txt.textContent = msg;
-}
-
-function atualizarUltimoSave(s){
-  const el=document.getElementById('cloudUltimoSave');
-  if(el&&s) el.textContent=`Último save: ${s.por} às ${new Date(s.em).toLocaleString('pt-BR')}`;
-}
-
-function iniciarAutosync(){
-  clearInterval(_syncTimer);
-  // Resync a cada 60s para pegar atualizações de outros usuários
-  _syncTimer = setInterval(async()=>{
-    await carregarDadosNuvem();
-  }, 60000);
-}
-
-function aplicarModoViewer(){
-  if(USER_PERFIL!=='viewer') return;
-  // Esconder todos os botões de edição e formulários para viewers
-  document.querySelectorAll('.form-card,.btn-primary,.btn-danger').forEach(el=>el.style.display='none');
-  document.querySelectorAll('.btn-del').forEach(el=>el.style.display='none');
-}
-
-// Tenta relogar automaticamente se credenciais salvas
-async function tentarLoginAutomatico(){
-  const savedUser  = localStorage.getItem('aea_auth_user');
-  const savedSenha = localStorage.getItem('aea_auth_senha');
-  const savedUrl   = localStorage.getItem('aea_worker_url');
-  if(savedUser && savedSenha && savedUrl){
-    document.getElementById('loginUsuario').value  = savedUser;
-    document.getElementById('loginSenha').value    = savedSenha;
-    document.getElementById('loginWorkerUrl').value= savedUrl;
-    document.getElementById('loginUrlBox').style.display='none';
-    await fazerLogin();
-  }
-}
-
 // ── BRIEFING DO DIA ───────────────────────────────────────────────────────────
 const BRIEFING_SKIP_KEY = 'aea_briefing_skip_date';
 
@@ -4273,391 +3917,6 @@ function renderBriefing(){
     secao('📋', 'Contratos sem lançamento',      ctSemLanc.length,     'briefing-badge-info',   ctSemLancHtml);
 }
 
-
-// ══ RH / FOLHA DE PAGAMENTO ══════════════════════════════════════════════════
-const FUNC_KEY  = 'aea_funcionarios_v1';
-const VERBAS_KEY = 'aea_verbas_v1';
-
-function exemploFuncionarios(){
-  return [
-    {id:uuid(),nome:'Carlos Pereira',cpf:'',cargo:'Técnico em Elevadores',salario:3200,admissao:`${anoAtual-2}-03-01`,status:'Ativo',regime:'CLT',depto:'Manutenção',email:'',tel:'',obs:''},
-    {id:uuid(),nome:'Ana Rodrigues', cpf:'',cargo:'Auxiliar Técnico',      salario:2100,admissao:`${anoAtual-1}-07-15`,status:'Ativo',regime:'CLT',depto:'Manutenção',email:'',tel:'',obs:''},
-    {id:uuid(),nome:'Marcos Silva',  cpf:'',cargo:'Administrativo',        salario:2800,admissao:`${anoAtual-2}-01-10`,status:'Ativo',regime:'CLT',depto:'Administrativo',email:'',tel:'',obs:''},
-  ];
-}
-function carregarFuncionarios(){ try{const r=localStorage.getItem(FUNC_KEY);if(r)return JSON.parse(r);}catch(e){} return exemploFuncionarios(); }
-function salvarFuncionariosStorage(){ try{localStorage.setItem(FUNC_KEY,JSON.stringify(funcionarios));showToast();}catch(e){} if(AUTH_USER)salvarNuvem('aea_funcionarios_v1',funcionarios); }
-let funcionarios = carregarFuncionarios();
-
-function carregarVerbas(){ try{const r=localStorage.getItem(VERBAS_KEY);if(r)return JSON.parse(r);}catch(e){} return []; }
-function salvarVerbaStorage(){ try{localStorage.setItem(VERBAS_KEY,JSON.stringify(verbas));showToast();}catch(e){} if(AUTH_USER)salvarNuvem('aea_verbas_v1',verbas); }
-let verbas = carregarVerbas();
-
-// ── TABELAS IRRF SIMPLIFICADA 2024 ───────────────────────────────────────────
-function calcINSS(sal){
-  if(sal<=1518)   return sal*0.075;
-  if(sal<=2666.68)return sal*0.09;
-  if(sal<=4000.03)return sal*0.12;
-  if(sal<=7786.02)return sal*0.14;
-  return 908.86;
-}
-function calcIRRF(base){
-  if(base<=2259.20)return 0;
-  if(base<=2826.65)return base*0.075-169.44;
-  if(base<=3751.05)return base*0.15-381.44;
-  if(base<=4664.68)return base*0.225-662.77;
-  return base*0.275-896;
-}
-function calcFGTS(sal){ return sal*0.08; }
-
-function calcHolerite(func, mes, ano){
-  const ym = `${ano}-${pad(mes)}`;
-  const vbs = verbas.filter(v=>v.funcId===func.id && v.ym===ym);
-  const proventos = [{desc:'Salário base', valor:func.salario, tipo:'provento'}];
-  const descontos = [];
-  let totalProv = func.salario, totalDesc = 0;
-
-  vbs.forEach(v=>{
-    const isDesc = ['adiantamento','falta','desconto'].includes(v.tipo);
-    const label = {horaExtra:'Hora extra',adiantamento:'Adiantamento',bonus:'Bônus/Gratificação',
-      valeTransporte:'Vale transporte',valeAlimentacao:'Vale alimentação',
-      falta:'Desconto — falta',desconto:'Desconto',outros:'Outros'}[v.tipo]||v.tipo;
-    const desc = v.desc ? `${label} — ${v.desc}` : label;
-    if(isDesc){ descontos.push({desc, valor:v.valor}); totalDesc+=v.valor; }
-    else       { proventos.push({desc, valor:v.valor}); totalProv+=v.valor; }
-  });
-
-  // Encargos (só CLT)
-  const inss   = func.regime==='CLT' ? calcINSS(totalProv) : 0;
-  const fgts   = func.regime==='CLT' ? calcFGTS(totalProv) : 0;
-  const baseIR = Math.max(0, totalProv - inss - 189.59); // dedução simplificada dependentes
-  const irrf   = func.regime==='CLT' ? Math.max(0, calcIRRF(baseIR)) : 0;
-
-  if(inss>0) descontos.push({desc:'INSS (empregado)', valor:inss});
-  if(irrf>0) descontos.push({desc:'IRRF', valor:irrf});
-  totalDesc += inss + irrf;
-
-  const liquido = totalProv - totalDesc;
-  return {proventos, descontos, totalProv, totalDesc, liquido, fgts, inss, irrf};
-}
-
-
-// ── KPIs RH ──────────────────────────────────────────────────────────────────
-function renderRhKpis(){
-  const ativos = funcionarios.filter(f=>f.status==='Ativo');
-  const folha  = ativos.reduce((s,f)=>s+f.salario,0);
-  const encarg = ativos.reduce((s,f)=>s+ (f.regime==='CLT' ? f.salario*0.08 : 0),0); // FGTS patronal
-  const fmt    = v=>`R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-  document.getElementById('rhKpis').innerHTML=`
-    <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-label">Funcionários ativos</div><div class="kpi-value" style="color:var(--blue)">${ativos.length}</div><div class="kpi-sub">de ${funcionarios.length} cadastrado${funcionarios.length!==1?'s':''}</div></div>
-    <div class="kpi" style="border-left-color:#2a6b2a"><div class="kpi-label">Folha bruta mensal</div><div class="kpi-value" style="color:#2a6b2a">${fmt(folha)}</div><div class="kpi-sub">salários base</div></div>
-    <div class="kpi" style="border-left-color:#5a1a7a"><div class="kpi-label">Custo total (+ FGTS)</div><div class="kpi-value" style="color:#5a1a7a">${fmt(folha+encarg)}</div><div class="kpi-sub">folha + FGTS patronal (8%)</div></div>
-    <div class="kpi" style="border-left-color:var(--gray-mid)"><div class="kpi-label">Folha anual estimada</div><div class="kpi-value" style="color:var(--gray-dark)">${fmt((folha+encarg)*12)}</div><div class="kpi-sub">13º incluído = ×13</div></div>`;
-}
-
-// ── LISTA DE FUNCIONÁRIOS ─────────────────────────────────────────────────────
-function renderFuncionarios(){
-  renderRhKpis();
-  popularSelectFunc();
-  const busca  = (document.getElementById('searchFunc').value||'').toLowerCase();
-  const status = document.getElementById('filterFuncStatus').value;
-  let rows = funcionarios.slice();
-  if(status) rows=rows.filter(f=>f.status===status);
-  if(busca)  rows=rows.filter(f=>f.nome.toLowerCase().includes(busca)||f.cargo.toLowerCase().includes(busca)||(f.depto||'').toLowerCase().includes(busca));
-  rows.sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-
-  const fmt = v=>`R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-  const statusPill = s=>({Ativo:'pill-contrato-ativo',Inativo:'pill-contrato-vencido',Férias:'pill-contrato-vence',Afastado:'pill-contrato-vence'}[s]||'');
-  const lista = document.getElementById('funcionariosLista');
-  if(!rows.length){lista.innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--gray-mid);font-family:var(--font-body);font-size:13px">Nenhum funcionário encontrado.</div>';return;}
-
-  lista.innerHTML=rows.map(f=>{
-    const admDt=f.admissao?f.admissao.split('-').reverse().join('/'):'';
-    const anos=f.admissao?Math.floor((hoje-new Date(f.admissao))/365/24/3600/1000):0;
-    return `<div class="func-card">
-      <div>
-        <div class="func-nome">${f.nome}</div>
-        <div class="func-meta">${f.cargo}${f.depto?' · '+f.depto:''} · ${f.regime} · Admissão: ${admDt}${anos>0?' ('+anos+' ano'+(anos>1?'s':'')+')':''}</div>
-        <div style="margin-top:6px;display:flex;gap:6px;align-items:center">
-          <span class="${statusPill(f.status)}">${f.status}</span>
-          ${f.cpf?`<span style="font-family:var(--font-mono);font-size:10px;color:var(--gray-mid)">CPF ${f.cpf}</span>`:''}
-        </div>
-        <div style="display:flex;gap:4px;margin-top:8px">
-          <button class="btn-del" onclick="editarFunc('${f.id}')" style="color:var(--blue)" title="Editar">✎</button>
-          <button class="btn-del" onclick="confirmar('func','${f.id}')" title="Excluir">✕</button>
-          <button class="btn-del" onclick="verHolFunc('${f.id}')" style="color:#2a6b2a" title="Ver holerite">📄</button>
-        </div>
-      </div>
-      <div>
-        <div class="func-salario">${fmt(f.salario)}</div>
-        <div class="func-salario-label">/mês</div>
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--gray-mid);margin-top:4px;text-align:right">FGTS: ${fmt(calcFGTS(f.salario))}/mês</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function popularSelectFunc(){
-  ['verbaFunc','holFunc'].forEach(sid=>{
-    const sel=document.getElementById(sid); if(!sel) return;
-    const val=sel.value;
-    sel.innerHTML='<option value="">Selecione</option>';
-    funcionarios.filter(f=>f.status==='Ativo').sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(f=>{
-      const o=document.createElement('option'); o.value=f.id; o.textContent=f.nome;
-      if(f.id===val) o.selected=true; sel.appendChild(o);
-    });
-  });
-}
-
-// ── CRUD FUNCIONÁRIOS ─────────────────────────────────────────────────────────
-function salvarFuncionario(){
-  const editId=document.getElementById('funcEditId').value;
-  const nome=document.getElementById('funcNome').value.trim();
-  const salario=parseFloat(document.getElementById('funcSalario').value);
-  const admissao=document.getElementById('funcAdmissao').value;
-  const cargo=document.getElementById('funcCargo').value.trim();
-  const msg=document.getElementById('funcMsg');
-  if(!nome||isNaN(salario)||salario<=0||!cargo){msg.className='msg-err';msg.textContent='Preencha os campos obrigatórios (*)';return;}
-  const obj={id:editId||uuid(),nome,cpf:document.getElementById('funcCpf').value.trim(),cargo,salario,admissao,
-    status:document.getElementById('funcStatus').value,regime:document.getElementById('funcRegime').value,
-    depto:document.getElementById('funcDepto').value.trim(),email:document.getElementById('funcEmail').value.trim(),
-    tel:document.getElementById('funcTel').value.trim(),obs:document.getElementById('funcObs').value.trim()};
-  if(editId){const i=funcionarios.findIndex(f=>f.id===editId);if(i>-1)funcionarios[i]=obj;msg.textContent='Funcionário atualizado.';}
-  else{funcionarios.push(obj);msg.textContent='Funcionário cadastrado com sucesso.';}
-  salvarFuncionariosStorage(); msg.className='msg-ok'; cancelarEdicaoFunc(); renderFuncionarios();
-  setTimeout(()=>msg.textContent='',3000);
-}
-function editarFunc(id){
-  const f=funcionarios.find(x=>x.id===id); if(!f) return;
-  document.getElementById('funcEditId').value=f.id;
-  document.getElementById('funcNome').value=f.nome;
-  document.getElementById('funcCpf').value=f.cpf||'';
-  document.getElementById('funcCargo').value=f.cargo;
-  document.getElementById('funcSalario').value=f.salario;
-  document.getElementById('funcAdmissao').value=f.admissao||'';
-  document.getElementById('funcStatus').value=f.status;
-  document.getElementById('funcRegime').value=f.regime||'CLT';
-  document.getElementById('funcDepto').value=f.depto||'';
-  document.getElementById('funcEmail').value=f.email||'';
-  document.getElementById('funcTel').value=f.tel||'';
-  document.getElementById('funcObs').value=f.obs||'';
-  document.getElementById('funcFormTitle').textContent='Editar funcionário';
-  document.getElementById('btnSalvarFunc').textContent='✓ Salvar alterações';
-  document.getElementById('btnCancelarFunc').style.display='inline-block';
-  document.getElementById('funcNome').scrollIntoView({behavior:'smooth',block:'center'});
-}
-function cancelarEdicaoFunc(){
-  document.getElementById('funcEditId').value='';
-  document.getElementById('funcFormTitle').textContent='Cadastrar funcionário';
-  document.getElementById('btnSalvarFunc').textContent='+ Cadastrar funcionário';
-  document.getElementById('btnCancelarFunc').style.display='none';
-  limparFormFunc();
-}
-function limparFormFunc(){
-  ['funcEditId','funcNome','funcCpf','funcCargo','funcAdmissao','funcDepto','funcEmail','funcTel','funcObs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('funcSalario').value='';
-  document.getElementById('funcStatus').value='Ativo';
-  document.getElementById('funcRegime').value='CLT';
-}
-
-// ── FOLHA DO MÊS ─────────────────────────────────────────────────────────────
-function renderFolha(){
-  const mes=parseInt(document.getElementById('folhaMes').value);
-  const ano=parseInt(document.getElementById('folhaAno').value)||anoAtual;
-  const ym=`${ano}-${pad(mes)}`;
-  const ativos=funcionarios.filter(f=>f.status==='Ativo'||f.status==='Férias');
-  const fmt=v=>`R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-
-  let totBruto=0,totDesc=0,totLiq=0,totFgts=0;
-  const rows=ativos.map(f=>{
-    const h=calcHolerite(f,mes,ano);
-    totBruto+=h.totalProv; totDesc+=h.totalDesc; totLiq+=h.liquido; totFgts+=h.fgts;
-    return {f,h};
-  });
-
-  document.getElementById('folhaKpis').innerHTML=`
-    <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-label">Total proventos</div><div class="kpi-value" style="color:var(--blue)">${fmt(totBruto)}</div></div>
-    <div class="kpi" style="border-left-color:#c0392b"><div class="kpi-label">Total descontos</div><div class="kpi-value" style="color:#c0392b">${fmt(totDesc)}</div></div>
-    <div class="kpi" style="border-left-color:#2a6b2a"><div class="kpi-label">Total líquido</div><div class="kpi-value" style="color:#2a6b2a">${fmt(totLiq)}</div></div>
-    <div class="kpi" style="border-left-color:#5a1a7a"><div class="kpi-label">FGTS patronal (8%)</div><div class="kpi-value" style="color:#5a1a7a">${fmt(totFgts)}</div></div>`;
-
-  const vbMap={};
-  verbas.filter(v=>v.ym===ym).forEach(v=>{
-    if(!vbMap[v.funcId]) vbMap[v.funcId]={extra:0,desc:0};
-    if(['adiantamento','falta','desconto'].includes(v.tipo)) vbMap[v.funcId].desc+=v.valor;
-    else vbMap[v.funcId].extra+=v.valor;
-  });
-
-  document.getElementById('folhaBody').innerHTML=rows.map(({f,h})=>`
-    <tr>
-      <td style="font-weight:600">${f.nome}</td>
-      <td style="font-size:11px;color:var(--gray-dark)">${f.cargo}</td>
-      <td style="font-family:var(--font-mono);font-size:11px">${fmt(f.salario)}</td>
-      <td style="font-family:var(--font-mono);font-size:11px;color:#2a6b2a">${fmt((vbMap[f.id]||{}).extra||0)}</td>
-      <td style="font-family:var(--font-mono);font-size:11px;color:#c0392b">${fmt(h.inss>0?(vbMap[f.id]||{}).desc||0:0)}</td>
-      <td style="font-family:var(--font-mono);font-size:11px;color:var(--gray-dark)">—</td>
-      <td style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--blue)">${fmt(h.totalProv)}</td>
-      <td style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:#c0392b">${fmt(h.totalDesc)}</td>
-      <td style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:#2a6b2a">${fmt(h.liquido)}</td>
-      <td><button class="btn-del" onclick="irParaHolerite('${f.id}')" style="color:var(--blue)" title="Ver holerite">📄</button></td>
-    </tr>`).join('');
-
-  if(!rows.length) document.getElementById('folhaBody').innerHTML='<tr class="empty-row"><td colspan="10">Nenhum funcionário ativo.</td></tr>';
-}
-
-function salvarVerba(){
-  const funcId=document.getElementById('verbaFunc').value;
-  const tipo=document.getElementById('verbaTipo').value;
-  const valor=parseFloat(document.getElementById('verbaValor').value);
-  const desc=document.getElementById('verbaDesc').value.trim();
-  const mes=parseInt(document.getElementById('folhaMes').value);
-  const ano=parseInt(document.getElementById('folhaAno').value)||anoAtual;
-  const msg=document.getElementById('verbaMsg');
-  if(!funcId||isNaN(valor)||valor<=0){msg.className='msg-err';msg.textContent='Preencha os campos obrigatórios.';return;}
-  verbas.push({id:uuid(),funcId,tipo,valor,desc,ym:`${ano}-${pad(mes)}`});
-  salvarVerbaStorage(); msg.className='msg-ok'; msg.textContent='Verba adicionada.';
-  document.getElementById('verbaValor').value=''; document.getElementById('verbaDesc').value='';
-  renderFolha(); setTimeout(()=>msg.textContent='',3000);
-}
-
-function gerarFolhaComoDesp(){
-  const mes=parseInt(document.getElementById('folhaMes').value);
-  const ano=parseInt(document.getElementById('folhaAno').value)||anoAtual;
-  const ym=`${ano}-${pad(mes)}`;
-  const nomeMes=new Date(ano,mes-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
-  const ativos=funcionarios.filter(f=>f.status==='Ativo'||f.status==='Férias');
-  if(!ativos.length){alert('Nenhum funcionário ativo.');return;}
-
-  // Verificar se já foi lançado
-  const jaLancado=despesas.some(d=>d.folhaYm===ym);
-  if(jaLancado){if(!confirm(`A folha de ${nomeMes} já foi lançada. Substituir?`)) return; despesas=despesas.filter(d=>d.folhaYm!==ym);}
-
-  let criadas=0;
-  ativos.forEach(f=>{
-    const h=calcHolerite(f,mes,ano);
-    // Despesa líquido do funcionário
-    despesas.push({id:uuid(),data:`${ym}-05`,desc:`Salário — ${f.nome}`,categoria:'Pessoal',
-      fornecedor:f.nome,doc:'',valor:h.liquido,status:'Pendente',
-      recorrencia:'mensal',tag:'Folha de pagamento',obs:`Competência ${nomeMes}`,
-      folhaYm:ym,funcId:f.id,competencia:ym});
-    criadas++;
-    // FGTS patronal como despesa separada
-    if(h.fgts>0) despesas.push({id:uuid(),data:`${ym}-20`,desc:`FGTS — ${f.nome}`,categoria:'Imposto',
-      fornecedor:'Caixa Econômica Federal',doc:'',valor:h.fgts,status:'Pendente',
-      recorrencia:'mensal',tag:'Folha de pagamento',obs:`FGTS patronal ${nomeMes}`,folhaYm:ym,funcId:f.id,competencia:ym});
-  });
-  salvarDespesasStorage();
-  alert(`${criadas} lançamento${criadas>1?'s':''} + FGTS criados nas Despesas para ${nomeMes}.\nTotal líquido: R$ ${ativos.reduce((s,f)=>s+calcHolerite(f,mes,ano).liquido,0).toLocaleString('pt-BR',{minimumFractionDigits:2})}`);
-  popularFiltroCategoria(); atualizarBadges();
-}
-
-// ── HOLERITE ──────────────────────────────────────────────────────────────────
-function renderHolerite(){
-  const funcId=document.getElementById('holFunc').value;
-  const mes=parseInt(document.getElementById('holMes').value);
-  const ano=parseInt(document.getElementById('holAno').value)||anoAtual;
-  const box=document.getElementById('holBox');
-  if(!funcId){box.innerHTML='<div style="padding:2rem;text-align:center;color:var(--gray-mid);font-family:var(--font-body)">Selecione um funcionário para visualizar o holerite.</div>';return;}
-  const f=funcionarios.find(x=>x.id===funcId);
-  if(!f){box.innerHTML='';return;}
-  const h=calcHolerite(f,mes,ano);
-  const fmt=v=>`R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-  const nomeMes=new Date(ano,mes-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
-  const admDt=f.admissao?f.admissao.split('-').reverse().join('/'):'';
-
-  box.innerHTML=`<div class="holerite">
-    <div class="holerite-header">
-      <div><div class="holerite-empresa">A&A Elevadores Ltda</div><div class="holerite-periodo">Recibo de Pagamento · ${nomeMes.charAt(0).toUpperCase()+nomeMes.slice(1)}</div></div>
-      <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,.45);text-align:right">Gerado em ${hoje.toLocaleDateString('pt-BR')}</div>
-    </div>
-    <div class="holerite-func">
-      <div class="holerite-func-cell"><div class="holerite-cell-label">Funcionário</div><div class="holerite-cell-val">${f.nome}</div></div>
-      <div class="holerite-func-cell"><div class="holerite-cell-label">Cargo</div><div class="holerite-cell-val">${f.cargo}</div></div>
-      <div class="holerite-func-cell"><div class="holerite-cell-label">Admissão</div><div class="holerite-cell-val">${admDt}</div></div>
-      <div class="holerite-func-cell"><div class="holerite-cell-label">Regime</div><div class="holerite-cell-val">${f.regime||'CLT'}</div></div>
-      <div class="holerite-func-cell"><div class="holerite-cell-label">Departamento</div><div class="holerite-cell-val">${f.depto||'—'}</div></div>
-      ${f.cpf?`<div class="holerite-func-cell"><div class="holerite-cell-label">CPF</div><div class="holerite-cell-val">${f.cpf}</div></div>`:'<div class="holerite-func-cell"></div>'}
-    </div>
-    <table class="holerite-table">
-      <thead><tr><th style="width:60%">Descrição</th><th>Referência</th><th>Proventos</th><th>Descontos</th></tr></thead>
-      <tbody>
-        <tr class="hl-section"><td colspan="4">Proventos</td></tr>
-        ${h.proventos.map(p=>`<tr><td>${p.desc}</td><td>—</td><td>${fmt(p.valor)}</td><td></td></tr>`).join('')}
-        <tr class="hl-section"><td colspan="4">Descontos</td></tr>
-        ${h.descontos.map(d=>`<tr class="hl-desc"><td>${d.desc}</td><td>—</td><td></td><td>${fmt(d.valor)}</td></tr>`).join('')}
-        ${h.descontos.length===0?'<tr><td colspan="4" style="color:var(--gray-mid);font-size:11px;padding:.4rem 1rem">Nenhum desconto</td></tr>':''}
-        <tr class="hl-total"><td>Líquido a receber</td><td></td><td>${fmt(h.totalProv)}</td><td>${fmt(h.totalDesc)}</td></tr>
-      </tbody>
-    </table>
-    <div class="holerite-footer">
-      <div class="holerite-footer-cell"><div class="holerite-footer-label">Total proventos</div><div class="holerite-footer-val positivo">${fmt(h.totalProv)}</div></div>
-      <div class="holerite-footer-cell"><div class="holerite-footer-label">Total descontos</div><div class="holerite-footer-val negativo">${fmt(h.totalDesc)}</div></div>
-      <div class="holerite-footer-cell"><div class="holerite-footer-label">Salário líquido</div><div class="holerite-footer-val positivo">${fmt(h.liquido)}</div></div>
-    </div>
-    ${f.regime==='CLT'?`<div style="background:var(--gray-pale);padding:.5rem 1rem;font-family:var(--font-mono);font-size:10px;color:var(--gray-mid)">Base INSS: ${fmt(h.totalProv)} · INSS empregado: ${fmt(h.inss)} · IRRF: ${fmt(h.irrf)} · FGTS patronal (8%): ${fmt(h.fgts)}</div>`:''}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.5rem 1rem;border-top:1px solid var(--gray-pale);margin-top:1rem">
-      <div style="border-top:1px solid var(--ink);padding-top:.5rem;font-family:var(--font-body);font-size:12px;color:var(--gray-mid);text-align:center">Assinatura do Empregador</div>
-      <div style="border-top:1px solid var(--ink);padding-top:.5rem;font-family:var(--font-body);font-size:12px;color:var(--gray-mid);text-align:center">Assinatura do Funcionário</div>
-    </div>
-  </div>`;
-}
-
-function irParaHolerite(funcId){
-  document.getElementById('holFunc').value=funcId;
-  document.getElementById('holMes').value=mesAtual;
-  document.getElementById('holAno').value=anoAtual;
-  showRhTab('holerite');
-  showSection('rh');
-  renderHolerite();
-}
-function verHolFunc(funcId){ irParaHolerite(funcId); }
-
-// ── NAVEGAÇÃO SUB-ABA RH ──────────────────────────────────────────────────────
-function showRhTab(t){
-  ['funcionarios','folha','holerite'].forEach(x=>{
-    const el=document.getElementById('rhsec-'+x); const btn=document.getElementById('rhtab-'+x);
-    if(el) el.style.display=x===t?'block':'none';
-    if(btn) btn.classList.toggle('active',x===t);
-  });
-  if(t==='funcionarios') renderFuncionarios();
-  if(t==='folha'){popularAnoFolha();renderFolha();}
-  if(t==='holerite'){popularAnoHol();renderHolerite();}
-}
-
-function popularAnoFolha(){
-  const sel=document.getElementById('folhaAno'); if(!sel) return;
-  const val=sel.value||String(anoAtual);
-  sel.innerHTML='';
-  for(let y=anoAtual+1;y>=anoAtual-3;y--){const o=document.createElement('option');o.value=y;o.textContent=y;if(String(y)===val)o.selected=true;sel.appendChild(o);}
-  if(!sel.value) sel.value=anoAtual;
-}
-function popularAnoHol(){
-  const sel=document.getElementById('holAno'); if(!sel) return;
-  const val=sel.value||String(anoAtual);
-  sel.innerHTML='';
-  for(let y=anoAtual+1;y>=anoAtual-3;y--){const o=document.createElement('option');o.value=y;o.textContent=y;if(String(y)===val)o.selected=true;sel.appendChild(o);}
-  if(!sel.value) sel.value=anoAtual;
-}
-
-// CSV da folha
-function exportarFolhaCSV(){
-  const mes=parseInt(document.getElementById('folhaMes').value);
-  const ano=parseInt(document.getElementById('folhaAno').value)||anoAtual;
-  const nomeMes=new Date(ano,mes-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
-  const header=['Funcionário','Cargo','Regime','Salário base','Proventos','Descontos','Líquido','FGTS patronal'];
-  const ativos=funcionarios.filter(f=>f.status==='Ativo'||f.status==='Férias');
-  const rows=ativos.map(f=>{
-    const h=calcHolerite(f,mes,ano);
-    return [f.nome,f.cargo,f.regime||'CLT',f.salario.toFixed(2).replace('.',','),h.totalProv.toFixed(2).replace('.',','),h.totalDesc.toFixed(2).replace('.',','),h.liquido.toFixed(2).replace('.',','),h.fgts.toFixed(2).replace('.', ',')];
-  });
-  const bom='\uFEFF';
-  const csv=bom+[header,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`aea_folha_${ano}_${pad(mes)}.csv`;a.click();
-  URL.revokeObjectURL(url);
-}
-
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.getElementById('dData').value=`${anoAtual}-${pad(mesAtual)}-${pad(hoje.getDate())}`;
 document.getElementById('contratoInicio').value=`${anoAtual}-${pad(mesAtual)}-01`;
@@ -4674,15 +3933,9 @@ atualizarAlertas();
 popularFiltroCategoria();
 popularSelectContrato();
 popularFiltrosCaixaSelects();
-popularAnoFolha();
-popularAnoHol();
 verificarPrimeiroAcesso();
-setTimeout(()=>{
-  tentarLoginAutomatico().then(()=>{
-    setTimeout(atualizarNotificacoes, 500);
-    setTimeout(abrirBriefing, 800);
-  });
-}, 100);
+setTimeout(atualizarNotificacoes, 500);
+setTimeout(abrirBriefing, 800);
 </script>
 </body>
 </html>
